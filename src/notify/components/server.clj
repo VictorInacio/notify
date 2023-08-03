@@ -8,12 +8,16 @@
 
 (def routes
   (route/expand-routes
-    #{["/notify" :post (i/interceptor {:name  :notify
-                                       :enter (fn [context]
-                                                context)}) :route-name :notify]
-      ["/history" :get (i/interceptor {:name  :history
-                                        :enter (fn [context]
-                                                 context)}) :route-name :history]}))
+    #{["/history" :get (i/interceptor
+                         {:name  :history
+                          :enter (fn [context]
+                                   (assoc context :response {:status 200
+                                                             :body   "History!"}))}) :route-name :history]
+      ["/notify" :post (i/interceptor
+                         {:name  :notify
+                          :enter (fn [context]
+                                   (assoc context :response {:status 200
+                                                             :body   "Notified!"}))}) :route-name :notify]}))
 
 (defonce server (atom nil))
 
@@ -42,17 +46,19 @@
                             ::http/join?  false}
           service-map      (-> service-map-base
                                (http/default-interceptors)
-                               (update ::http/interceptors conj (i/interceptor db-interceptor)))]
+                               (update ::http/interceptors conj (i/interceptor db-interceptor)))
+          _                (start-server service-map)]
       (try
-        (start-server service-map)
-        (println "Server Started successfully!")
+        (assoc this :web-server server)
         (catch Exception e
           (println "Error executing server start: " (.getMessage e))
           (println "Trying server restart..." (.getMessage e))
           (try
             (restart-server service-map)
             (println "Server Restarted successfully!")
-            (catch Exception e (println "Error executing server restart: " (.getMessage e))))))))
+            (catch Exception e (println "Error executing server restart: " (.getMessage e)))))
+        (finally
+          (println "Server Started successfully!")))))
 
   (stop [this]
     (stop-server)))
@@ -63,4 +69,4 @@
 
 (comment
 
-  server)
+  (deref server))
