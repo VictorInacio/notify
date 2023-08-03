@@ -1,5 +1,5 @@
 (ns notify.protocols.message
-  (:require [notify.spec.message :as spec]))
+  (:require [notify.spec.domain-model :as spec]))
 
 
 (defmulti send-message :channel)

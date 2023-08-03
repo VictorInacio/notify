@@ -1,4 +1,4 @@
-(ns notify.spec.message
+(ns notify.spec.domain-model
   (:require [clojure.spec.alpha :as s]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
