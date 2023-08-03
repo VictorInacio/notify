@@ -3,10 +3,20 @@
 A notification broadcasting system that allows users to send categorized messages to multiple
 channels.
 
+It will be 3 message categories:
+- Sports 
+- Finance 
+- Movies
+
+And 3 types of message delivery channels:
+
+- SMS
+- E-Mail
+- Push Notification
+
 ## Architecture
     
-There is a single executable application serving a RestAPI and a server side generated simple Web App.
-
+There is a single executable application serving a RestAPI and a server side generated simple Web App. 
 The endpoints available are for the Submission of Messages and fetching the Log History.
 
 Data from the messages are persisted in PostgreSQL DB.
@@ -16,19 +26,28 @@ Configuration is managed by Aero, credentials aefined according to a config.edn 
 
 ## Dependencies / Stack
 
-- Clojure
-- Compojure
-- Ring
-- Cheschire
-- Aero
-- Component
-- JDBC
-- Hiccup
+- Clojure (runtime language)
+- Component (dependency injection)
+- Aero (config sourcing)
+- Pedestal (Webserver)
+- clojure.spec (Validation)
+- JDBC (RDBMS interface)
+- Reagent / re-frame (Single Page App / User Interface)
+- Hiccup (HTML / DOM Elements)
 
-## API Endpoints
-    send-message: Accepts POST requests with a body containing and an Web GUI page. 
-    
+## System Components
 
+### Config
+
+Allow to set database credentials and webserver port.
+
+### Database
+
+Persistency layer to store messages
+
+### Users
+
+Manages the user authentication and data
 
 
 
