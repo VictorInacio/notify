@@ -3,15 +3,12 @@
             [com.stuartsierra.component :as component]
             [clojure.java.io :as io]))
 
-
-
-
-
 (defrecord Config []
   component/Lifecycle
 
   (start [this]
-    (assoc this :config (aero/read-config (io/resource "config.edn"))))
+    (let [config (aero/read-config (io/resource "config.edn"))]
+      (assoc this :config config)))
 
   (stop [this]
     (dissoc this :config)))

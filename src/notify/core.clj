@@ -2,7 +2,8 @@
   (:require [com.stuartsierra.component :as component]
             [notify.components.config :as config]
             [notify.components.db :as db]
-            [notify.components.server :as server])
+            [notify.components.server :as server]
+            [clojure.java.jdbc :as jdbc])
   (:gen-class))
 
 (defn new-sys [profile]
@@ -14,7 +15,7 @@
                   (server/new-server)
                   [:db-conn])))
 
-(def sys (atom nil))
+(defonce sys (atom nil))
 
 (defn -main [& args]
   (reset! sys (component/start (new-sys :dev))))
@@ -22,8 +23,9 @@
 (comment
   (-main)
 
-  (->> sys
-      deref
-      (into {}))
+  (-> @sys
+       :db-conn
+       :db-conn
+       (jdbc/query ["SELECT * FROM log"]))
   (deref sys)
   )

@@ -1,1 +1,7 @@
-{:db-conn-config {}}
+{:db-conn-config {:dbtype    "postgresql"
+                  :classname "org.postgresql.Driver"
+                  :dbname    "notify"
+                  :host      "localhost"
+                  :port      5432
+                  :user      "postgres"
+                  :password  "postgres"}}

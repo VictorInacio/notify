@@ -1,17 +1,45 @@
 (ns notify.components.db
   (:require [com.stuartsierra.component :as component]
-            [system.components.postgres :as pg]))
+            [clj-postgresql.core :as pg]
+            [clojure.java.jdbc :as jdbc]))
+
+(def pool-atom (atom {}))
+
+(defn get-pg-db
+  [{:keys [host port dbname user password] :as db-conn-config}]
+  (if-let [existing-db (:pool @pool-atom)]
+    existing-db
+    (let [pool (pg/pool :host host
+                        :port port
+                        :user user
+                        :dbname dbname
+                        :password password )]
+      (swap! pool-atom assoc :pool pool)
+      pool)))
 
 (defrecord Database []
   component/Lifecycle
-  (start [component]
-    (let [db-conn-config (get-in component [:config :db-conn-config])
-          conn           (pg/new-postgres-database db-conn-config)]
-      (assoc component :connection conn)))
-  (stop [component]
-    (when-let [conn (:connection component)]
+  (start [this]
+    (let [db-conn-config (get-in this [:config :config :db-conn-config])
+          conn           (get-pg-db db-conn-config)]
+      (assoc this :db-conn conn)))
+  (stop [this]
+    (when-let [conn (:db-conn this)]
       (.close conn))
-    (assoc component :connection nil)))
+    (assoc this :db-conn nil)))
 
 (defn new-database []
   (->Database))
+
+(comment
+  (def conn (pg/pool {:dbtype    "postgresql"
+                      :classname "org.postgresql.Driver"
+                      :dbname    "notify"
+                      :host      "localhost"
+                      :port      5432
+                      :user      "postgres"
+                      :password  "postgres"}))
+
+  (jdbc/execute! conn ["INSERT INTO public.log (id) VALUES(0);"])
+  (jdbc/query conn ["SELECT * FROM log"])
+  )

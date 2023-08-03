@@ -16,6 +16,17 @@ And 3 types of message delivery channels:
 
 ## Running
 
+Start dockerized PostgreSQL
+```shell
+docker compose up -d
+```
+
+Run migrations:
+```shell
+lein migratus migrate
+```
+
+
 For repl run:
 ```shell
 lein repl
