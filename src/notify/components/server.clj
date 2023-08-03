@@ -4,6 +4,17 @@
             [io.pedestal.http.route :as route]
             [com.stuartsierra.component :as component]))
 
+
+
+(def routes
+  (route/expand-routes
+    #{["/notify" :post (i/interceptor {:name  :notify
+                                       :enter (fn [context]
+                                                context)}) :route-name :notify]
+      ["/history" :get (i/interceptor {:name  :history
+                                        :enter (fn [context]
+                                                 context)}) :route-name :history]}))
+
 (defonce server (atom nil))
 
 (defn start-server [service-map]
@@ -16,22 +27,13 @@
   (stop-server)
   (start-server service-map))
 
-(def routes
-  (route/expand-routes
-    #{["/notify" :post (i/interceptor {:name  :notify
-                                       :enter (fn [context]
-                                                context)}) :route-name :notify]
-      ["/history" :get (i/interceptor {:name  :history
-                                        :enter (fn [context]
-                                                 context)}) :route-name :history]}))
-
 (defrecord WebServer []
   component/Lifecycle
 
-  (start [component]
-    (println "Start servidor")
+  (start [this]
+    (println "Starting server")
     (let [assoc-store      (fn [context]
-                             (assoc context :db-conn (:db-conn component)))
+                             (assoc context :db-conn (:db-conn this)))
           db-interceptor   {:name  :db-interceptor
                             :enter assoc-store}
           service-map-base {::http/routes routes
@@ -57,3 +59,8 @@
 
 (defn new-server []
   (->WebServer))
+
+
+(comment
+
+  server)

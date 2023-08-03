@@ -1,30 +1,29 @@
 (ns notify.core
   (:require [com.stuartsierra.component :as component]
-            [system.components.postgres :as pg]
+            [notify.components.config :as config]
+            [notify.components.db :as db]
             [notify.components.server :as server])
-  (:import (org.testcontainers.containers PostgreSQLContainer)
-           (org.testcontainers.utility DockerImageName))
   (:gen-class))
 
-(def config {:port 4567
-             :pg-config (assoc pg/DEFAULT-DB-SPEC
-                          :subname "component_example"
-                          :user "component_example"
-                          :password "component_example")})
-
-(defn new-sys [db-config]
+(defn new-sys [profile]
+  (println "Starting system with profile: " profile)
   (component/system-map
-    :db-conn (pg/new-postgres-database db-config)
+    :config (config/new-config)
+    :db-conn (component/using (db/new-database) [:config])
     :web-server (component/using
                   (server/new-server)
                   [:db-conn])))
 
-(def sys (new-sys config))
+(def sys (atom nil))
 
 (defn -main [& args]
-  (reset! sys (component/start new-sys)))
+  (reset! sys (component/start (new-sys :dev))))
 
 (comment
   (-main)
 
+  (->> sys
+      deref
+      (into {}))
+  (deref sys)
   )

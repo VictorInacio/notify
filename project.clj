@@ -14,8 +14,6 @@
                  [walmartlabs/system-viz "0.4.0"]
                  [org.postgresql/postgresql "42.2.23"]
                  [org.clojure/java.jdbc "0.7.12"]
-                 [org.testcontainers/testcontainers "1.15.3"]
-                 [org.testcontainers/postgresql "1.18.3"]
                  [net.java.dev.jna/jna "5.7.0"]]
   :main ^:skip-aot notify.core
   :target-path "target/%s"

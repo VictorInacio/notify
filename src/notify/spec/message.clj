@@ -25,13 +25,13 @@
 
 (s/valid? inst? (s/inst-in #inst "1970" #inst "9999"))
 
-(s/def :message/publication-date inst?)
+(s/def :message/published-date inst?)
 
 (s/def :message/category category?)
 
-(s/def :publicated/message (s/keys :req [:message/slug
+(s/def :published/message (s/keys :req [:message/slug
                                          :message/content
-                                         :message/publication-date
+                                         :message/published-date
                                          :message/category]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -72,4 +72,4 @@
                                         :message/slug
                                         :message/content
                                         :message/category
-                                        :message/publication-date]))
+                                        :message/published-date]))

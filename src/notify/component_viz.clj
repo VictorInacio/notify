@@ -1,12 +1,7 @@
 (ns notify.component-viz
   (:require [com.walmartlabs.system-viz :refer [visualize-system]]
-            [com.stuartsierra.component :as component]))
+            [com.stuartsierra.component :as component]
+            [notify.core :as core]))
 
 
-
-(def sys
-  (component/system-map
-    :database (component/using {} [])
-    :web-server (component/using {} [:database])))
-
-(visualize-system sys)
+(visualize-system (core/new-sys :dev))
