@@ -66,8 +66,8 @@ Dependency tree:
 - clojure.spec (Validation)
 - JDBC (RDBMS interface)
 - HoneySQL (query formatting)
-- Reagent / re-frame (Single Page App / User Interface)
 - Hiccup (HTML / DOM Elements)
+- Frontend (rendered on server)
 
 ## System Components
 
