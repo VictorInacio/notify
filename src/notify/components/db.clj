@@ -24,9 +24,8 @@
           conn           (get-pg-db db-conn-config)]
       (assoc this :db-conn conn)))
   (stop [this]
-    (when-let [conn (:db-conn this)]
-      (.close conn))
-    (assoc this :db-conn nil)))
+    (pg/close! @pool-atom)
+    (dissoc this :db-conn)))
 
 (defn new-database []
   (->Database))

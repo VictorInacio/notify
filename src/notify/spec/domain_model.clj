@@ -19,8 +19,6 @@
 ;; Messages                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(s/def :message/slug string?)
-
 (s/def :message/content string?)
 
 (s/valid? inst? (s/inst-in #inst "1970" #inst "9999"))
@@ -29,10 +27,9 @@
 
 (s/def :message/category category?)
 
-(s/def :published/message (s/keys :req [:message/slug
-                                         :message/content
-                                         :message/published-date
-                                         :message/category]))
+(s/def :published/message (s/keys :req [:message/content
+                                        :message/published-date
+                                        :message/category]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Users                               ;;
@@ -58,18 +55,16 @@
 ;; Notifications                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(s/def :notification/id int?)
-
-(s/def :notification/user :user/user)
-
 (s/def :notification/channel channel?)
 
 (s/def :user/email string?)
 
-(s/def :sent/notification (s/keys :req [:notification/id
-                                        :notification/user
-                                        :notification/channel
+(s/def :sent/notification (s/keys :req [:notification/channel
+                                        :user/id
+                                        :user/name
+                                        :user/email
                                         :message/slug
                                         :message/content
                                         :message/category
-                                        :message/published-date]))
+                                        :message/published-date]
+                                  :opt [:user/phone-number]))

@@ -2,22 +2,27 @@
   (:require [io.pedestal.http :as http]
             [io.pedestal.interceptor :as i]
             [io.pedestal.http.route :as route]
-            [com.stuartsierra.component :as component]))
-
-
+            [clojure.data.json :as json]
+            [com.stuartsierra.component :as component]
+            [notify.protocols.message :as msg]))
 
 (def routes
   (route/expand-routes
     #{["/history" :get (i/interceptor
                          {:name  :history
                           :enter (fn [context]
-                                   (assoc context :response {:status 200
-                                                             :body   "History!"}))}) :route-name :history]
+                                   (let [db-conn (:db-conn context)]
+                                     (assoc context :response {:status 200
+                                                               :body   (msg/get-history db-conn)})))}) :route-name :history]
       ["/notify" :post (i/interceptor
                          {:name  :notify
                           :enter (fn [context]
-                                   (assoc context :response {:status 200
-                                                             :body   "Notified!"}))}) :route-name :notify]}))
+                                   (let [db-conn (:db-conn context)
+                                         message (-> (get-in context [:request :body])
+                                                     slurp
+                                                     (json/read-str :key-fn keyword))]
+                                     (assoc context :response {:status 200
+                                                               :body   (msg/send-message db-conn message)})))}) :route-name :notify]}))
 
 (defonce server (atom nil))
 
@@ -36,8 +41,9 @@
 
   (start [this]
     (println "Starting server")
-    (let [assoc-store      (fn [context]
-                             (assoc context :db-conn (:db-conn this)))
+    (let [db-conn          (get-in this [:db-conn :db-conn])
+          assoc-store      (fn [context]
+                             (assoc context :db-conn db-conn))
           db-interceptor   {:name  :db-interceptor
                             :enter assoc-store}
           service-map-base {::http/routes routes
@@ -65,8 +71,3 @@
 
 (defn new-server []
   (->WebServer))
-
-
-(comment
-
-  (deref server))

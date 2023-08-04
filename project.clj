@@ -8,24 +8,26 @@
                  [io.pedestal/pedestal.service "0.5.10"]
                  [io.pedestal/pedestal.route "0.5.10"]
                  [io.pedestal/pedestal.jetty "0.5.10"]
-                 [org.slf4j/slf4j-simple "1.7.28"]
                  [com.stuartsierra/component "1.0.0"]
                  [org.danielsz/system "0.4.8"]
                  [walmartlabs/system-viz "0.4.0"]
+                 [org.clojure/java.data "1.0.95"]
+                 [com.github.seancorfield/honeysql "2.4.1045"]
+                 [org.clojure/data.json "2.4.0"]
                  [migratus "1.4.9"]
-                 [clj-postgresql "0.7.0" :exclusions [clj-time]]
+                 [clj-postgresql "0.7.0" ]
                  [org.postgresql/postgresql "42.2.23"]
-                 [org.clojure/java.jdbc "0.7.12"]
-                 [net.java.dev.jna/jna "5.7.0"]]
+                 [org.clojure/java.jdbc "0.7.12"]]
   :plugins [[migratus-lein "0.7.3"]]
   :migratus {:store         :database
              :migration-dir "migrations"
-             :db            {:dbtype "postgresql"
-                             :classname   "org.postgresql.Driver"
-                             :dbname   "notify"
-                             :host     "localhost"
-                             :user     "postgres"
-                             :password "postgres"}}
+             :db            {:dbtype    "postgresql"
+                             :classname "org.postgresql.Driver"
+                             :dbname    "notify"
+                             :host      "localhost"
+                             :port      5432
+                             :user      "postgres"
+                             :password  "postgres"}}
   :main ^:skip-aot notify.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot      :all
