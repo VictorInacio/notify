@@ -8,18 +8,19 @@
 
 (def routes
   (route/expand-routes
-    #{["/history" :get (i/interceptor
-                         {:name  :history
+    #{["/" :get (i/interceptor
+                         {:name  :home-page
                           :enter (fn [context]
                                    (let [db-conn (:db-conn context)]
                                      (assoc context :response {:status 200
-                                                               :body   (msg/get-history db-conn)})))}) :route-name :history]
+                                                               :headers {"Content-Type" "text/html; charset=utf-8"}
+                                                               :body   (msg/render-page db-conn)})))}) :route-name :home-page]
       ["/notify" :post (i/interceptor
                          {:name  :notify
                           :enter (fn [context]
                                    (let [db-conn (:db-conn context)
-                                         message (-> (get-in context [:request :body])
-                                                     slurp
+                                         body (slurp (get-in context [:request :body]))
+                                         message (-> body
                                                      (json/read-str :key-fn keyword))]
                                      (assoc context :response {:status 200
                                                                :body   (msg/send-message db-conn message)})))}) :route-name :notify]}))
@@ -47,6 +48,8 @@
           db-interceptor   {:name  :db-interceptor
                             :enter assoc-store}
           service-map-base {::http/routes routes
+                            ::http/secure-headers {:content-security-policy-settings {:object-src "none"}}
+                            ::http/resource-path     "/public"
                             ::http/port   9999
                             ::http/type   :jetty
                             ::http/join?  false}

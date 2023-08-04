@@ -17,7 +17,10 @@
                  [migratus "1.4.9"]
                  [clj-postgresql "0.7.0" ]
                  [org.postgresql/postgresql "42.2.23"]
-                 [org.clojure/java.jdbc "0.7.12"]]
+                 [org.clojure/java.jdbc "0.7.12"]
+                 ;; FRONTEND SERVER SIDE RENDERING
+                 [hiccup "1.0.5"]
+                 ]
   :plugins [[migratus-lein "0.7.3"]]
   :migratus {:store         :database
              :migration-dir "migrations"
