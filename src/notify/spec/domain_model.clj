@@ -68,3 +68,6 @@
                                         :message/category
                                         :message/published-date]
                                   :opt [:user/phone-number]))
+
+(defn validate-message [message]
+  true)

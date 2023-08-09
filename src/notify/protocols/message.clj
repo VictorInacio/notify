@@ -1,6 +1,7 @@
 (ns notify.protocols.message
   (:require [notify.spec.domain-model :as spec]
-            [notify.components.users :as users]
+            [com.stuartsierra.component :as component]
+            [notify.components.users-repository :as users-repository]
             [clojure.data.json :as json]
             [honey.sql :as sql]
             [clojure.java.jdbc :as jdbc]
@@ -13,7 +14,6 @@
        (sql/format)
        (jdbc/query db-conn)
        vec))
-
 
 (defn script-view []
   [:script {:src "client.js" :defer true}])
@@ -61,18 +61,46 @@
             [:td (:email message)]
             [:td (:phone_number message)]])]]])))
 
-
-
 (def user-keys [:user/id :user/name :user/email :user/phone-number])
 
 (defn make-insert-query [message]
   (sql/format {:insert-into [:messages]
                :values      [message]}))
 
+(defn persist-message [db-conn message]
+  (jdbc/execute! db-conn (make-insert-query message)))
+
+(defmulti notify :channel)
+
+(defn send-sms [phone-number message]
+  (println "Add SMS messaging service API call for:" phone-number message))
+
+(defmethod notify "sms" [message]
+  (let [phone-number (message :user/phone-number)
+        message      (str (message :category) " : " (message :content))]
+    (send-sms phone-number message)))
+
+(defn send-email [email user-name message]
+  (println "Add SMTP or email API call for:" email user-name message))
+
+(defmethod notify "email" [message]
+  (let [email     (message :user/email)
+        user-name (message :user/name)
+        message   (str (message :category) " : " (message :content))]
+    (send-email email user-name message)))
+
+(defn send-push-notification [user-id message]
+  (println "Add SMTP or email API call for:" user-id message))
+
+(defmethod notify "push-notification" [message]
+  (let [user-id (message :user/id)
+        message (str (message :category) " : " (message :content))]
+    (send-push-notification user-id message)))
+
 (defn send-message
-  [db-conn message]
-  (let [subscribed-users (filterv (fn [user]
-                                    (contains? (set (user :user/subscribed)) (message :category))) users/users)
+  [db-conn users message]
+  (let [category         (message :category)
+        subscribed-users (users-repository/get-users-by-category users category)
         now              (System/currentTimeMillis)
         messages         (->> subscribed-users
                               (mapcat (fn [user]
@@ -80,8 +108,10 @@
                                           (merge (select-keys user user-keys)
                                                  message
                                                  {:channel        (name channel)
-                                                  :published-date now})))))
-        message-queries  (mapv make-insert-query messages)]
-    (doseq [message-query message-queries]
-      (jdbc/execute! db-conn message-query))
-    (json/write-str {:added-messages (count message-queries)})))
+                                                  :published-date now})))))]
+    ;; Persist message sent for history reasons
+    (doseq [message messages] (persist-message db-conn message))
+    ;; Main notification call to multi-method dispatching on channel
+    (mapv notify messages)
+    (json/write-str {:added-messages (count messages)})))
+
