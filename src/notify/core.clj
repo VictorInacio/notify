@@ -38,10 +38,10 @@
            '[clojure.data.json :as json])
 
   (defn test-post [server verb url body]
-    (test-http/response-for (::http/service-fn @server) verb url :body body))
+    (test-http/response-for (:io.pedestal.http/service-fn @server) verb url :body body))
 
   (defn test-request [server verb url]
-    (test-http/response-for (::http/service-fn @server) verb url))
+    (test-http/response-for (:io.pedestal.http/service-fn @server) verb url))
 
   (def web-server (-> sys
                       deref
